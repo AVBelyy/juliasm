@@ -1,0 +1,22 @@
+# Temp files
+*.swp
+*~
+
+# Object files
+*.o
+*.obj
+
+# Libraries
+*.lib
+*.a
+*.la
+*.lo
+
+# Shared objects
+*.dll
+*.so
+
+# Executables
+run
+*.exe
+*.out
