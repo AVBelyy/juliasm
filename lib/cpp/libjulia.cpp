@@ -18,8 +18,8 @@ Image * juliaGenerateImage(int32_t w, int32_t h) {
            double R = (1+sqrt(a*a+b*b))/2;
            int N = 0;
            for (int k = 1; k <= MAXN; k++) {
-                int aNew = a*a-b*b;
-                int bNew = 2*a*b;
+                int aNew = a*a-b*b + a;
+                int bNew = 2*a*b + b;
                 N++;
                 if (sqrt(aNew*aNew + bNew*bNew) > R) {
                     break;
