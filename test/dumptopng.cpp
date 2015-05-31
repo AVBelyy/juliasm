@@ -1,4 +1,5 @@
 #include <libjulia.h>
+#include <math.h>
 #include <Magick++.h> 
 #include <iostream>
 #include <cstdio>
@@ -11,14 +12,13 @@ using namespace std;
 int main(int argc, char * argv[]) {
     if (argc != 4) {
         cout << "Usage: " << argv[0] << " width height path-to-png" << endl;
-        return 1;
+        return 1; 
     }
 
     int width, height;
-    sscanf(argv[1], "%d", &width);
-    sscanf(argv[2], "%d", &height);
+    sscanf(argv[1], "%d", &width); 
+    sscanf(argv[2], "%d", &height); 
     char * filename = argv[3];
-
     // Draw julia image
     Image * juliaImage = juliaGenerateImage(width, height);
 
@@ -36,8 +36,8 @@ int main(int argc, char * argv[]) {
 
     // Output it via ImageMagick
     Magick::InitializeMagick(argv[0]);
-    //Magick::Image magickImage(width, height, "BGRP", Magick::CharPixel, (void *) juliaImage->pixels);
-    Magick::Image magickImage(width, height, "BGRP", Magick::CharPixel, (void *) pixels);
+    Magick::Image magickImage(width, height, "BGRP", Magick::CharPixel, (void *) juliaImage->pixels);
+    //Magick::Image magickImage(width, height, "BGRP", Magick::CharPixel, (void *) pixels);
 
     magickImage.write(filename);
 
