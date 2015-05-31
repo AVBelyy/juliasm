@@ -8,9 +8,9 @@ const int WHITE = 16777215;
 const float A = 1.17;
 const float B = 0.0022;
 
-Image * juliaGenerateImage(int32_t w, int32_t h) {
+Image * juliaGenerateImage(uint32_t w, uint32_t h) {
    Image* image = new Image();
-   image->pixels = new Color[w*h];
+   image->pixels = new Pixel[w*h];
    image->w = w;
    image->h = h;
 
@@ -30,12 +30,8 @@ Image * juliaGenerateImage(int32_t w, int32_t h) {
                 a = aNew;
                 b = bNew;
            }
-           image->pixels[i*w+j] = (int)WHITE*(((double)N)/MAXN);
+           image->pixels[i*h+j] = (uint32_t)WHITE*(((double)N)/MAXN);
        }
    }
    return image;
-}
-
-int main() {
-    Image* julia = juliaGenerateImage(5000, 5000);
 }

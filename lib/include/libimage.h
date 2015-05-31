@@ -2,11 +2,11 @@
 #define _LIBIMAGE_HEADER
 #include <stdint.h>
 
-typedef uint32_t Color;
+typedef uint32_t Pixel;
 struct Image {
     uint32_t w;
     uint32_t h;
-    Color * pixels;
+    Pixel * pixels;
 };
 
 #ifdef __cplusplus
