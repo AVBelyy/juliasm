@@ -1,14 +1,13 @@
-CC = gcc
-ASM = yasm
-AR = ar
-CC_OPTS = -Wall -Wextra -std=c99 -m64 -O2 -L. -I include
-ASM_OPTS = -f elf64 -g dwarf2
+ASM_OPTS = -g dwarf2 -f elf64
 
-all: libjulia.o
+all: libjulia.a
 
 clean:
-	rm -f libjulia.o
+	rm -f *.o
+	rm -f libjulia.a
+
+libjulia.a: libjulia.o
+	ar rcs $@ $<
 
 libjulia.o: libjulia.asm
-	$(ASM) -o $@ $(ASM_OPTS) $^
-
+	yasm -o $@ $(ASM_OPTS) $^
