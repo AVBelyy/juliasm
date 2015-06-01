@@ -14,7 +14,7 @@ struct Image {
 extern "C" {
 #endif
 
-Image * imageGetPart(uint32_t w, uint32_t h);
+Image * imageGetPart(uint64_t w, uint64_t h);
 
 #ifdef __cplusplus
 }
