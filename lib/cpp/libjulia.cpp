@@ -3,13 +3,13 @@
 #include <stdio.h>
 #include <cstdlib>
 
-const int MAXN = 2000;
+const int MAXN = 3000;
 const int BLACK = 0;
 const int WHITE = 0xffffff;
 
 const float A = 0.28;
 const float B = 0.0113;
-const float scale = 0.001;
+const float scale = 0.002;
 
 
 int getBinaryColor(int N, int MAXN) {
@@ -31,18 +31,18 @@ Image * juliaGenerateImage(uint32_t w, uint32_t h) {
 
 
 
-    float R = (1+sqrt(1 + A*A+B*B))/2;
+    float R = (1+sqrt(1 + 4*(A*A+B*B)))/2;
 
    for (int i = 0; i < h; i++) {
        for (int j = 0; j < w; j++) {
             float a = scale*(j - (int) w/2);
             float b = scale*(i - (int) h/2);
           
-            int N = MAXN;
+            int N = 0;
             for (int k = 1; k <= MAXN; k++) {
                 float aNew = a*a-b*b + A;
                 float bNew = 2.0f*a*b + B;
-                N--;
+                N++;
                 if (sqrt(aNew*aNew + bNew*bNew) > R) {
                     break;
                 }

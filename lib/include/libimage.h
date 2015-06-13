@@ -6,7 +6,6 @@ typedef uint32_t Pixel;
 struct Image {
     uint64_t w;
     uint64_t h;
-    uint64_t realw;
     Pixel * pixels;
 };
 

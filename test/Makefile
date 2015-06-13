@@ -1,5 +1,5 @@
 CXXFLAGS = -g -m64 -I../lib/include
-LDFLAGS = -L../lib/cpp -ljulia
+LDFLAGS = -L../lib/asm -ljulia
 
 all: dumptopng
 
