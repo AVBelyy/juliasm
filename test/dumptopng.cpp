@@ -21,7 +21,7 @@ int main(int argc, char * argv[]) {
     char * filename = argv[3];
     // Draw julia image
     Image * juliaImage = juliaGenerateImage(width, height);
-    
+
     // Draw test image (ellipsis)
     Pixel * pixels = new Pixel[width * height];
     for (int i = 0; i < height; i++) {

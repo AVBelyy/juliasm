@@ -9,11 +9,11 @@ const int WHITE = 0xffffff;
 
 const float A = 0.28;
 const float B = 0.0113;
-const float scale = 0.002;
+const float scale = 0.001;
 
 
 int getBinaryColor(int N, int MAXN) {
-    if (N == MAXN) {
+    if (N == 0) {
         return 0xff0000;
     }
     return 0xffffff;
@@ -29,6 +29,8 @@ Image * juliaGenerateImage(uint32_t w, uint32_t h) {
    image->w = w;
    image->h = h;
 
+
+
     float R = (1+sqrt(1 + A*A+B*B))/2;
 
    for (int i = 0; i < h; i++) {
@@ -36,17 +38,18 @@ Image * juliaGenerateImage(uint32_t w, uint32_t h) {
             float a = scale*(j - (int) w/2);
             float b = scale*(i - (int) h/2);
           
-            int N = 0;
+            int N = MAXN;
             for (int k = 1; k <= MAXN; k++) {
                 float aNew = a*a-b*b + A;
                 float bNew = 2.0f*a*b + B;
-                N++;
+                N--;
                 if (sqrt(aNew*aNew + bNew*bNew) > R) {
                     break;
                 }
                 a = aNew;
                 b = bNew;
             }
+            //printf("%d \n", aNew*aNew + bNew*bNew);
             image->pixels[i*w+j] = getGradientColor(N, MAXN);
        }
    }

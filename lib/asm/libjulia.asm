@@ -12,15 +12,16 @@ MINUSONE:   dd  1,1,1,1
 
 WHITE:      dd  0xffffff, 0xffffff, 0xffffff, 0xffffff
 BLACK:      dd  0,0,0,0
+WHITE2:     dd  100000
+
 
 ; TODO : malloc
-BUFFER64:   resq    1
 BUFFER32:   resd    1
         ;;  c = A + i*B  
 A:          dd      0.28
 B:          dd      0.0113
 SCALE:      dd      0.001
-MAXN:       dd      100
+MAXN:       dd      255
 
 
 section    .text
@@ -72,7 +73,6 @@ juliaGenerateImage:
             movups xmm2, [TWO]
             divps  xmm5, xmm2   ;; YMM5 = R
 
-            xorps  xmm10, xmm10
             movss  xmm10, [SCALE] 
             shufps xmm10, xmm10, 0      ;; YMM10 = SCALE
 
@@ -81,9 +81,6 @@ juliaGenerateImage:
 
             movups  xmm12, [REZ_SHIFT]
             mulps  xmm12, xmm10         ;; YMM12 = REZ_SHIFT
-
-            movups  xmm13, [ONE]                ;; YMM13 = ONE
-            mulps  xmm13, xmm10         
 
             movups  xmm14,  [TWO]               ;; YMM14 = TWO
 
@@ -105,9 +102,14 @@ juliaGenerateImage:
             shr     r8, 2
 
 
-.loop_w:    mov     rcx, [MAXN]                 ;; counter of the 0..MAXN iterations
+.loop_w:    xor     rcx, rcx
+            mov     ecx, [MAXN]                 ;; counter of the 0..MAXN iterations
             movss  xmm6, [MAXN]             ;; YMM6 = N
             shufps  xmm6, xmm6, 0
+            
+            movaps  xmm7, xmm0
+            movaps  xmm13, xmm1
+
             .loop_n:    movaps   xmm2, xmm0
             mulps  xmm2, xmm0            ;; YMM2 = a*a - b*b + A (see c++ code)
             movaps   xmm3, xmm1
@@ -131,24 +133,18 @@ juliaGenerateImage:
             paddd  xmm6, xmm2
             dec     rcx
             jnz     .loop_n
-            
-            movss   xmm2, [MAXN]
-            shufps  xmm2, xmm2, 0
-            cvtdq2ps    xmm6, xmm6
-            cvtdq2ps    xmm2, xmm2
-            divps   xmm6, xmm2
-            movups  xmm3, [WHITE]
-            cvtdq2ps xmm3, xmm3
-            mulps   xmm6, xmm3
-   
+
+            movaps xmm0, xmm7
+            movaps  xmm1, xmm13
 
             movups [r10], xmm6                 ;; store colors to memory
             lea     r10, [r10 + 16]
+            
             addps   xmm0, xmm12           ;; shift real part to the right by 8 cells
             dec     r8
             jnz     .loop_w
 
-            subps   xmm1, xmm10         ;; shift imagine part to a row below
+            addps   xmm1, xmm10         ;; shift imagine part to a row below
             dec     r9
             jnz     .loop_h
             ret
