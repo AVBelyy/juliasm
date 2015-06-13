@@ -23,8 +23,8 @@ int main(int argc, char * argv[]) {
     Image * juliaImage = juliaGenerateImage(width, height);
 
     // Draw test image (ellipsis)
-    Pixel * pixels = new Pixel[width * height];
-    for (int i = 0; i < height; i++) {
+   Pixel * pixels = new Pixel[width * height];
+  /*  for (int i = 0; i < height; i++) {
         for (int j = 0; j < width; j++) {
             int64_t y = i - height / 2;
             int64_t x = j - width / 2;
@@ -33,7 +33,7 @@ int main(int argc, char * argv[]) {
             pixels[i * width + j] = (x * x + y * y) * (x * x + y * y) <= 2 * c * c * (x * x - y * y) && (y < x || y < -x) ? color : 0;
         }
     }
-
+    */    
     // Output it via ImageMagick
     Magick::InitializeMagick(argv[0]);
     Magick::Image magickImage(width, height, "BGRP", Magick::CharPixel, (void *) juliaImage->pixels);

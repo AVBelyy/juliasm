@@ -7,15 +7,15 @@ ONED:       dd  1.0
 TWOD:       dd  2.0 
 TWO:        dq  2
 
-WHITE:      dd  0xffffff
+WHITE:      dd  0x0000ff
 BLACK:      dd  0
 
 
         ;;  c = A + i*B  
-A:          dd      0.28
-B:          dd      0.0113
-SCALE:      dd      0.002
-MAXN:       dd      2000
+A:          dd      -0.8
+B:          dd      0.156
+SCALE:      dd      0.004
+MAXN:       dd      500
 
 
 section    .text
@@ -47,7 +47,7 @@ juliaGenerateImage:
             
             xorps  xmm14, xmm14
             movss   xmm14,  [TWOD]               ;; YMM14 = TWO
-                                        ;; R = (1 + sqrt(1 + 4*|c|))/2
+                                    ;; R = (1 + sqrt(1 + 4*|c|))/2
             movaps  xmm5, xmm8
             mulps   xmm5, xmm8
             movaps  xmm2, xmm9
@@ -55,10 +55,10 @@ juliaGenerateImage:
             addps   xmm5, xmm2
             mulps   xmm5, xmm14
             mulps   xmm5, xmm14
-            movss   xmm2, [ONED]
-            addps   xmm5, xmm2
+            movss   xmm15, [ONED]
+            addps   xmm5, xmm15
             sqrtps  xmm5, xmm5
-            addps   xmm5, xmm2
+            addps   xmm5, xmm15
             divps   xmm5, xmm14          ;; YMM5 = R
             shufps  xmm5, xmm5, 0
 
@@ -121,12 +121,42 @@ juliaGenerateImage:
             cmp     rcx, rdx    
             jl      .loop_n
     
-.stop_n     cvtsi2ss    xmm2, rcx
+.stop_n     
+            movaps      xmm4, xmm2
+            
+            ;; K = (MAXN - N)/MAXN
+            cvtsi2ss    xmm2, rcx
             movaps      xmm3, xmm6
             subps       xmm3, xmm2
             divps       xmm3, xmm6
+
+            movaps      xmm2, xmm15
+            subps       xmm2, xmm3
+            
+            ;; R = 255 * K 
             mulps       xmm3, xmm7
-            cvtss2si    rcx, xmm3
+
+            ;; G = 255 * (1 - K)
+            mulps       xmm2, xmm7
+            
+            ;; B = 255 * ( |Z| > R? 1 : |Z|/R)
+            movss       xmm11, xmm15
+            comiss      xmm4, xmm5
+            jb          .gen_color
+            movaps      xmm11, xmm4
+            divps       xmm11, xmm5
+.gen_color  mulps       xmm11, xmm7
+
+
+            cvtss2si    rcx, xmm2
+            shl         rcx, 8
+            cvtss2si    rax, xmm3
+            add         rcx, rax
+            shl         rcx, 8
+            cvtss2si    rax, xmm11
+            add         rcx, rax
+
+
             
             mov     [r12], ecx                 ;; store colors to memory
             lea     r12, [r12 + 4]
