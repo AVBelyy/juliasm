@@ -6,17 +6,8 @@ typedef uint32_t Pixel;
 struct Image {
     uint64_t w;
     uint64_t h;
+    float a, b, scale;
     Pixel * pixels;
 };
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-Image * imageGetPart(uint64_t w, uint64_t h);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif
