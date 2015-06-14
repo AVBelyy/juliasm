@@ -16,6 +16,13 @@
 *.dll
 *.so
 
+# Images
+*.bmp
+*.png
+
+# Core
+test/core
+
 # Executables
 run
 julia
