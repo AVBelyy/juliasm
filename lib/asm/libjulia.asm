@@ -23,28 +23,62 @@ section    .text
     extern  malloc
     extern  free
 
-    global  juliaGenerateImage
+    global  juliaGeneratePart
+    global  juliaNewImage
 
         struc   Image
 w:          resq    1
 h:          resq    1
 pixels:     resq    1
+a:          resd    1
+b:          resd    1
+scale:      resd    1
     	endstruc
 
-juliaGenerateImage: 
+juliaGeneratePart: 
+            ;syspush
             push    r12
-            call    newImage
+            push    rbx
+            push    r13
+            push    r14
+            push    r15
+            ;;call    newImage
+            mov     rax, rdi        ;; rax = Image
+            mov     rbx, rsi
+            mov     r13, rdx
+            mov     r14, rcx
+            mov     r15, r8
+
             mov     r12, [rax + pixels]
             mov     rdi, [rax + w]
             mov     rsi, [rax + h]
-            push    rax
+
+            mov     rcx, rsi
+            shr     rcx, 1
+            mov     r8, r13
+            sub     r8, rcx         ;; r8 = y1 - h/2
+            mov     r10, r15
+            sub     r10, rcx        ;; r10 = y2 - h/2 
+
+            mov     rsi, [rax + w]
+            add     rsi, rbx
+            sub     rsi, r14
+            inc     rsi
+            shl     rsi, 2  ;; rsi = shift = 4 * (w - (x2-x1) + 1)
 
             xorps  xmm8, xmm8
-            movss  xmm8, [A]             
+            movss  xmm8, [rax + a]             
 
             xorps  xmm9, xmm9
-            movss  xmm9, [B]
+            movss  xmm9, [rax + b]
             
+            xorps   xmm10, xmm10
+            movss   xmm10, [rax + scale]       ;;xmm10 - scale
+
+            push    rax
+
+
+
             xorps  xmm14, xmm14
             movss   xmm14,  [TWOD]               ;; YMM14 = TWO
                                     ;; R = (1 + sqrt(1 + 4*|c|))/2
@@ -66,25 +100,28 @@ juliaGenerateImage:
             mov     eax, [WHITE]
             cvtsi2ss xmm7, rax              ;; xmm7 - WHITE
             
-            xorps   xmm10, xmm10
-            movss   xmm10, [SCALE]       ;;xmm10 - scale
-
             xorps     xmm6, xmm6
             mov     rcx, [MAXN]
             cvtsi2ss    xmm6, rcx             ;; YMM6 = MAXN
 
             mov     rdx, [MAXN]
+            
+       ;     mov     r8, rsi
+       ;     shr     r8, 1
+       ;     mov     r10, r8
+       ;     neg     r8
 
-
-            mov     r8, rsi
-            shr     r8, 1
-            mov     r10, r8
-            neg     r8
-
-.loop_h:    mov     r9, rdi
-            shr     r9, 1
-            mov     r11, r9
-            neg     r9
+.loop_h:  
+         ;   mov     r9, rdi
+         ;   shr     r9, 1
+         ;   mov     r11, r9
+         ;   neg     r9
+            mov     rcx, rdi
+            shr     rcx, 1
+            mov     r9, rbx
+            sub     r9, rcx         ;; r9 = x1 - w/2
+            mov     r11, r14    
+            sub     r11, rcx        ;; r11 = x2 - w/2
 
 .loop_w:    cvtsi2ss    xmm0, r8
             mulps       xmm0, xmm10
@@ -159,7 +196,7 @@ juliaGenerateImage:
 
             
             mov     [r12], ecx                 ;; store colors to memory
-            lea     r12, [r12 + 4]
+            lea     r12, [r12 + rsi]
 
             inc     r9
             cmp     r9, r11
@@ -170,7 +207,13 @@ juliaGenerateImage:
             jl     .loop_h
             
             pop     rax
+        
+            pop     r15
+            pop     r14
+            pop     r13
+            pop     rbx
             pop     r12
+           ; syspop
             ret
 
 %macro syspush 0
@@ -224,7 +267,7 @@ alligned_free:
 
 
 
-newImage:   syspush
+juliaNewImage:   syspush
             push    rdi
             push    rsi
             mov     rdi, Image_size
@@ -233,6 +276,9 @@ newImage:   syspush
             pop     rdi
             mov     [rax + w], rdi
             mov     [rax + h], rsi
+            movd    [rax + a], xmm0
+            movd    [rax + b], xmm1
+            movd    [rax + scale], xmm2
             push    rax
             mov     rax, rdi
             mul     rsi

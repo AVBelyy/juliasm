@@ -19,8 +19,14 @@ int main(int argc, char * argv[]) {
     sscanf(argv[1], "%d", &width); 
     sscanf(argv[2], "%d", &height); 
     char * filename = argv[3];
+
+    float a = -0.8;
+    float b = 0.156;
+    float scale = 0.001;
+
     // Draw julia image
-    Image * juliaImage = juliaGenerateImage(width, height);
+    Image * juliaImage = juliaNewImage(width, height, a, b, scale);
+    juliaGeneratePart(juliaImage, 200, 200, width, height);
 
     // Draw test image (ellipsis)
    Pixel * pixels = new Pixel[width * height];

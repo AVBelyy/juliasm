@@ -6,8 +6,8 @@ typedef uint32_t Pixel;
 struct Image {
     uint64_t w;
     uint64_t h;
-    float a, b, scale;
     Pixel * pixels;
+    float a, b, scale;
 };
 
 #endif
