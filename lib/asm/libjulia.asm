@@ -29,7 +29,6 @@ section    .text
         struc   Image
 w:          resq    1
 h:          resq    1
-pixels:     resq    1
 a:          resd    1
 b:          resd    1
 scale:      resd    1
@@ -44,12 +43,14 @@ juliaGeneratePart:
             push    r15
             ;;call    newImage
             mov     rax, rdi        ;; rax = Image
-            mov     rbx, rsi        ;; rbx = x1
-            mov     r13, rdx        ;; r13 = y1
-            mov     r14, rcx        ;; r14 = x2
-            mov     r15, r8         ;; r15 = y2
+        
+            mov     r12, rsi        ;; r12 = out
 
-            mov     r12, [rax + pixels]
+            mov     rbx, rdx        ;; rbx = x1
+            mov     r13, rcx        ;; r13 = y1
+            mov     r14, r8         ;; r14 = x2
+            mov     r15, r9         ;; r15 = y2
+
 
             mov     rdi, [rax + w]
             mov     rsi, [rax + h]
@@ -61,11 +62,10 @@ juliaGeneratePart:
             mov     r10, r15
             sub     r10, rcx        ;; r10 = y2 - h/2 
 
-            mov     rsi, [rax + w]
-            add     rsi, rbx
-            sub     rsi, r14
-            shl     rsi, 2  ;; rsi = shift = 4 * (w - (x2-x1))
-            ;;inc     rsi
+            ;mov     rsi, [rax + w]
+            ;add     rsi, rbx
+            ;sub     rsi, r14
+            ;shl     rsi, 2  ;; rsi = shift = 4 * (w - (x2-x1))
 
             xorps  xmm8, xmm8
             movss  xmm8, [rax + a]             
@@ -209,7 +209,7 @@ juliaGeneratePart:
 
             inc     r8
             cmp     r8, r10
-            lea     r12, [r12 + rsi]
+ ;           lea     r12, [r12 + rsi]
             jl     .loop_h
             
             pop     rax
@@ -292,7 +292,7 @@ juliaNewImage:   syspush
             shl     rdi, 2
             call    alligned_malloc
             pop     rdx
-            mov     [rdx + pixels], rax
+     ;       mov     [rdx + pixels], rax
             mov     rax, rdx
             syspop
             ret
