@@ -5,7 +5,7 @@
 #include <cstdio>
 
 // Creates julia image of specified WIDTH and HEIGHT
-// And outputs it to PNG image.
+// And outputs it to image.
 
 using namespace std;
 
@@ -25,33 +25,27 @@ int main(int argc, char * argv[]) {
     float scale = 0.001;
 
     // Draw julia image
-    Image * juliaImage = juliaNewImage(width, height, a, b, scale);
-    
-    for (int i = 0; i < width; i++ ) {
-        juliaGeneratePart(juliaImage, i, 0, i+1, height);
-    }
-     //   juliaGeneratePart(juliaImage, 200, 200, 500, 500);
- //   juliaGeneratePart(juliaImage, 500, 500, width, height);
- //   juliaGeneratePart(juliaImage, 200, 0, 500, 200); 
+    JuliaPart info = {
+        .w = width,
+        .h = height,
+        .a = a,
+        .b = b,
+        .scale = scale
+    };
+    uint32_t * pixels = new uint32_t[width * height];
 
-    // Draw test image (ellipsis)
-   Pixel * pixels = new Pixel[width * height];
-  /*  for (int i = 0; i < height; i++) {
-        for (int j = 0; j < width; j++) {
-            int64_t y = i - height / 2;
-            int64_t x = j - width / 2;
-            uint32_t color = (uint32_t) (sin(0.1f * i + 0.1 * j) * 0xffffff);
-            uint32_t c = 200;
-            pixels[i * width + j] = (x * x + y * y) * (x * x + y * y) <= 2 * c * c * (x * x - y * y) && (y < x || y < -x) ? color : 0;
-        }
-    }
-    */    
+    // It should create image of size WIDTH*HEIGHT
+    // And fill in the lower part (HEIGHT / 2 <= y <= HEIGHT)
+    // With Julia pixels
+    juliaGeneratePart(&info, pixels, 0, height / 2, width, height);
+
     // Output it via ImageMagick
     Magick::InitializeMagick(argv[0]);
-    Magick::Image magickImage(width, height, "BGRP", Magick::CharPixel, (void *) juliaImage->pixels);
-    //Magick::Image magickImage(width, height, "BGRP", Magick::CharPixel, (void *) pixels);
+    Magick::Image magickImage(width, height, "BGRP", Magick::CharPixel, (void *) pixels);
 
     magickImage.write(filename);
+
+    delete pixels;
 
     return 0;
 }
