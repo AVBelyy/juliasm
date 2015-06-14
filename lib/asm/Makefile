@@ -1,13 +1,13 @@
 ASM_OPTS = -g dwarf2 -f elf64
 
-all: libjulia.a
+all: libjulia.so
 
 clean:
 	rm -f *.o
-	rm -f libjulia.a
+	rm -f libjulia.so
 
-libjulia.a: libjulia.o
-	ar rcs $@ $<
+libjulia.so: libjulia.o
+	ld -shared -o $@ $^
 
 libjulia.o: libjulia.asm
 	yasm -o $@ $(ASM_OPTS) $^

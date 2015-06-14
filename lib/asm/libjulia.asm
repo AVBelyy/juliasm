@@ -1,4 +1,4 @@
-
+default     rel
     
 section .data
 
@@ -246,10 +246,10 @@ alligned_malloc:
             test    rsp, 15
             jz      .malloc
             sub     rsp, 8
-            call    malloc
+            call    malloc wrt ..plt
             add     rsp, 8
             ret               
-.malloc             call  malloc
+.malloc     call    malloc wrt ..plt
             ret
 
 
@@ -257,10 +257,10 @@ alligned_free:
             test    rsp, 15
             jz      .free
             sub     rsp, 8
-            call    free
+            call    free wrt ..plt
             add     rsp, 8
             ret               
-.free       call    free
+.free       call    free wrt ..plt
             ret
 
 %macro ceil 1
