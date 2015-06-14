@@ -78,11 +78,11 @@ juliaGeneratePart:
 
             push    rax
 
-            mov     rax, rdi
-            mul     r13
-            add     rax, rbx
-            shl     rax, 2
-            lea     r12, [r12 + rax]
+           ; mov     rax, rdi
+           ; mul     r13
+           ; add     rax, rbx
+           ; shl     rax, 2
+           ; lea     r12, [r12 + rax]
 
             xorps  xmm14, xmm14
             movss   xmm14,  [TWOD]               ;; YMM14 = TWO

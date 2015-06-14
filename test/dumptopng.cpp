@@ -38,7 +38,7 @@ int main(int argc, char * argv[]) {
     // And fill in the lower part (HEIGHT / 2 <= y <= HEIGHT)
     // With Julia pixels
     juliaGeneratePart(&info, pixels, 0, 0, width, height / 2);
-    juliaGeneratePart(&info, pixels, 0, height / 2, width, height);
+    juliaGeneratePart(&info, pixels + height / 2 * width, 0, height / 2, width, height);
 
     // Output it via ImageMagick
     Magick::InitializeMagick(argv[0]);
