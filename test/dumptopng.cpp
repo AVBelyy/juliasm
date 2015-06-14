@@ -26,7 +26,13 @@ int main(int argc, char * argv[]) {
 
     // Draw julia image
     Image * juliaImage = juliaNewImage(width, height, a, b, scale);
-    juliaGeneratePart(juliaImage, 200, 200, width, height);
+    
+    for (int i = 0; i < width; i++ ) {
+        juliaGeneratePart(juliaImage, i, 0, i+1, height);
+    }
+     //   juliaGeneratePart(juliaImage, 200, 200, 500, 500);
+ //   juliaGeneratePart(juliaImage, 500, 500, width, height);
+ //   juliaGeneratePart(juliaImage, 200, 0, 500, 200); 
 
     // Draw test image (ellipsis)
    Pixel * pixels = new Pixel[width * height];

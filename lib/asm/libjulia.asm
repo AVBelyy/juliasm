@@ -44,12 +44,13 @@ juliaGeneratePart:
             push    r15
             ;;call    newImage
             mov     rax, rdi        ;; rax = Image
-            mov     rbx, rsi
-            mov     r13, rdx
-            mov     r14, rcx
-            mov     r15, r8
+            mov     rbx, rsi        ;; rbx = x1
+            mov     r13, rdx        ;; r13 = y1
+            mov     r14, rcx        ;; r14 = x2
+            mov     r15, r8         ;; r15 = y2
 
             mov     r12, [rax + pixels]
+
             mov     rdi, [rax + w]
             mov     rsi, [rax + h]
 
@@ -63,8 +64,8 @@ juliaGeneratePart:
             mov     rsi, [rax + w]
             add     rsi, rbx
             sub     rsi, r14
-            inc     rsi
-            shl     rsi, 2  ;; rsi = shift = 4 * (w - (x2-x1) + 1)
+            shl     rsi, 2  ;; rsi = shift = 4 * (w - (x2-x1))
+            ;;inc     rsi
 
             xorps  xmm8, xmm8
             movss  xmm8, [rax + a]             
@@ -77,7 +78,11 @@ juliaGeneratePart:
 
             push    rax
 
-
+            mov     rax, rdi
+            mul     r13
+            add     rax, rbx
+            shl     rax, 2
+            lea     r12, [r12 + rax]
 
             xorps  xmm14, xmm14
             movss   xmm14,  [TWOD]               ;; YMM14 = TWO
@@ -196,7 +201,7 @@ juliaGeneratePart:
 
             
             mov     [r12], ecx                 ;; store colors to memory
-            lea     r12, [r12 + rsi]
+            lea     r12, [r12 + 4]
 
             inc     r9
             cmp     r9, r11
@@ -204,6 +209,7 @@ juliaGeneratePart:
 
             inc     r8
             cmp     r8, r10
+            lea     r12, [r12 + rsi]
             jl     .loop_h
             
             pop     rax
