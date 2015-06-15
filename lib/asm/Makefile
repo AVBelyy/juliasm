@@ -7,7 +7,7 @@ clean:
 	rm -f libjulia.so
 
 libjulia.so: libjulia.o
-	ld -shared -o $@ $^
+	gcc -shared -o $@ $^
 
 libjulia.o: libjulia.asm
 	yasm -o $@ $(ASM_OPTS) $^
