@@ -106,6 +106,8 @@ $(document).keydown(function(e) {
             if (!entered) {
                 scale /= 2;
                 relscale *= 2;
+                posx = Math.floor(2.0 * (posx + w / 2) - w / 2);
+                posy = Math.floor(2.0 * (posy + h / 2) - h / 2);
                 $("#scale").html(relscale);
                 clearCache();
                 setViewport(posx, posy);
@@ -117,6 +119,8 @@ $(document).keydown(function(e) {
             if (!entered) {
                 scale *= 2;
                 relscale /= 2;
+                posx = Math.floor(0.5 * (posx + w / 2) - w / 2);
+                posy = Math.floor(0.5 * (posy + h / 2) - h / 2);
                 $("#scale").html(relscale);
                 clearCache();
                 setViewport(posx, posy);

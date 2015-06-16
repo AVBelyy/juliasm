@@ -56,7 +56,7 @@ static void generatePartAsync(uv_work_t * req) {
     memcpy(b->filename, filename, 17);
 
     Image image(b->x2 - b->x1, b->y2 - b->y1, "BGRP", CharPixel, pixels);
-    image.magick("BMP");
+    image.magick("PNG");
     image.write(filename);
 
     // Do the cleanup
