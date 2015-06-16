@@ -8,6 +8,7 @@
 #include <vector>
 #include <thread>
 #include <cstdlib>
+#include <cstring>
 #include <algorithm>
 
 using namespace std;
@@ -16,40 +17,35 @@ using namespace Magick;
 
 const int threads_cnt = 4; // TODO : make it function argument
 
-void parallelDraw(JuliaPart * info, uint32_t * out, uint32_t y, uint32_t x1, uint32_t y1, uint32_t x2, uint32_t y2) {
+struct JuliaBaton {
+    uv_work_t request;
+    Persistent<Function> callback;
+    JuliaPart * info;
+    int32_t x1, y1, x2, y2;
+    char filename[24];
+};
+
+void parallelDraw(JuliaPart * info, uint32_t * out, uint32_t y, int32_t x1, int32_t y1, int32_t x2, int32_t y2) {
     juliaGeneratePart(info, out + ((uint64_t) (x2 - x1)) * (y1 - y), x1, y1, x2, y2);
 }
 
-// TODO : make it truly async
-// generatePart(w, h, a, b, scale, x1, y1, x2, y2, callback) -> callback(filename)
-Handle<Value> generatePart(const Arguments & args) {
-    HandleScope scope;
-
-    // Parse args
-    uint32_t w = args[0]->Uint32Value();
-    uint32_t h = args[1]->Uint32Value();
-    float a = (float) args[2]->NumberValue();
-    float b = (float) args[3]->NumberValue();
-    float scale = (float) args[4]->NumberValue();
-    uint32_t x1 = args[5]->Uint32Value();
-    uint32_t y1 = args[6]->Uint32Value();
-    uint32_t x2 = args[7]->Uint32Value();
-    uint32_t y2 = args[8]->Uint32Value();
-    Local<Function> callback = Local<Function>::Cast(args[9]);
+static void generatePartAsync(uv_work_t * req) {
+    JuliaBaton * b = static_cast<JuliaBaton *>(req->data);
 
     // Create julia image
-    JuliaPart info = {w, h, a, b, scale};
-    uint32_t * pixels = new uint32_t[(x2 - x1) * (y2 - y1)];
+    uint32_t * pixels = new uint32_t[(b->x2 - b->x1) * (b->y2 - b->y1)];
 
     // Draw it using multiple threads
     vector<thread> threads;
-    uint32_t dh = (y2 - y1 + threads_cnt - 1) / threads_cnt;
-    uint32_t y_1 = y1, y_2 = y1 + dh;
+    int32_t dh = (b->y2 - b->y1 + threads_cnt - 1) / threads_cnt;
+    int32_t y_1 = b->y1, y_2 = b->y1 + dh;
     for (int i = 0; i < threads_cnt; i++) {
-        threads.push_back(thread(parallelDraw, &info, pixels, y1, x1, y_1, x2, y_2));
+        threads.push_back(thread(parallelDraw, b->info, pixels, b->y1, b->x1, y_1, b->x2, y_2));
         y_1 += dh;
-        y_2 = min(y_2 + dh, y2);
+        y_2 = min(y_2 + dh, b->y2);
     }
+
+    // Wait for all threads to terminate
     for (auto & t : threads) {
         t.join();
     }
@@ -57,20 +53,66 @@ Handle<Value> generatePart(const Arguments & args) {
     // Output to temporary file
     char filename[] = "/tmp/juliaXXXXXX";
     mktemp(filename);
+    memcpy(b->filename, filename, 17);
 
-    Image image(x2 - x1, y2 - y1, "BGRP", CharPixel, pixels);
-    image.magick("PNG");
+    Image image(b->x2 - b->x1, b->y2 - b->y1, "BGRP", CharPixel, pixels);
+    image.magick("BMP");
     image.write(filename);
 
     // Do the cleanup
+    delete b->info;
     delete pixels;
+}
+
+static void generatePartAfter(uv_work_t * req, int status) {
+    JuliaBaton * baton = static_cast<JuliaBaton *>(req->data);
 
     // Callback with temporary image path
-    Handle<Value> argv[1] = {String::New(filename)};
+    Handle<Value> argv[1] = {String::New(baton->filename)};
 
-    callback->Call(Context::GetCurrent()->Global(), 1, argv);
+    baton->callback->Call(Context::GetCurrent()->Global(), 1, argv);
+    baton->callback.Dispose();
+
+    delete baton;
+}
+
+// generatePart(w, h, a, b, scale, x1, y1, x2, y2, callback) -> callback(filename)
+Handle<Value> generatePart(const Arguments & args) {
+
+    // Parse args
+    uint32_t w = args[0]->Uint32Value();
+    uint32_t h = args[1]->Uint32Value();
+    float a = (float) args[2]->NumberValue();
+    float b = (float) args[3]->NumberValue();
+    float scale = (float) args[4]->NumberValue();
+    uint32_t x1 = args[5]->Int32Value();
+    uint32_t y1 = args[6]->Int32Value();
+    uint32_t x2 = args[7]->Int32Value();
+    uint32_t y2 = args[8]->Int32Value();
+    Handle<Function> callback = Handle<Function>::Cast(args[9]);
+
+    // Create julia part description
+    JuliaPart * info = new JuliaPart;
+    info->w = w;
+    info->h = h;
+    info->a = a;
+    info->b = b;
+    info->scale = scale;
+
+    // Create baton for delayed julia execution
+    JuliaBaton * baton = new JuliaBaton;
+    baton->request.data = baton;
+    baton->callback = Persistent<Function>::New(callback);
+    baton->info = info;
+    baton->x1 = x1;
+    baton->y1 = y1;
+    baton->x2 = x2;
+    baton->y2 = y2;
+
+    // Queue the async function to the event loop
+    uv_queue_work(uv_default_loop(), &baton->request, generatePartAsync, generatePartAfter);
     
-    return scope.Close(Undefined());
+    return Undefined();
 }
 
 void init(Handle<Object> target) {
