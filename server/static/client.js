@@ -1,9 +1,10 @@
 var screen, ctx;
-var posx, posy, scale = 0.001;
+var posx, posy;
+var a, b, scale = 0.005;
 var wcnt = 8, hcnt = 6;
 var stepx = 20, stepy = 20;
 var loaded = {};
-var juliaParams = "w=1000&h=500&a=-0.8&b=0.136";
+var juliaParams = "w=0&h=0";
 
 function clearCache() {
     loaded = {};
@@ -17,7 +18,7 @@ function loadChunk(x1, y1, x2, y2, cb) {
     if (isChunkLoaded(x1, y1)) {
         cb();
     } else {
-        var pieceParams = "x1=" + x1 + "&y1=" + y1 + "&x2=" + x2 + "&y2=" + y2 + "&scale=" + scale;
+        var pieceParams = "a=" + a + "&b=" + b + "&x1=" + x1 + "&y1=" + y1 + "&x2=" + x2 + "&y2=" + y2 + "&scale=" + scale;
         var chunk = new Image();
         chunk.src = "/julia?" + juliaParams + "&" + pieceParams;
         chunk.onload = function() {
@@ -75,6 +76,12 @@ function setViewport(sx, sy) {
 
 // one way of treading Julia set is by keyboard
 $(document).keydown(function(e) {
+    var w = screen.width(), h = screen.height();
+
+    if (e.target != document.body) {
+        return;
+    }
+
     switch (e.which) {
         case 37: // left
             posx -= stepx;
@@ -117,6 +124,9 @@ $(document).keydown(function(e) {
 });
 
 $(document).ready(function() {
+    var w = $(document).width();
+    var h = $(document).height();
+
     screen = $("<canvas/>");
     screen.css({
         position: "absolute",
@@ -130,13 +140,17 @@ $(document).ready(function() {
     screen.appendTo("body");
     ctx = screen[0].getContext("2d");
 
-    posx = posy = 0;
+    a = $("#a").val();
+    b = $("#b").val();
+
+    posx = Math.floor(-w / 2);
+    posy = Math.floor(-h / 2);
     setViewport(posx, posy);
 
+    // another is by mouse
     var dragging = false;
     var prevx = -1, prevy;
 
-    // another is by mouse
     $(screen).mousedown(function() {
         dragging = true;
     });
@@ -166,4 +180,25 @@ $(document).ready(function() {
             prevy = cury;
         }
     });
+
+    $("#a").keyup(function(e) {
+        if (e.keyCode == 13) {
+            a = $("#a").val();
+            b = $("#b").val();
+            clearCache();
+            setViewport(posx, posy);
+        }
+    });
+
+    $("#b").keyup(function(e) {
+        if (e.keyCode == 13) {
+            a = $("#a").val();
+            b = $("#b").val();
+            clearCache();
+            setViewport(posx, posy);
+        }
+    });
+
+    $("#a").addClass("prevent");
+    $("#b").addClass("prevent");
 });
