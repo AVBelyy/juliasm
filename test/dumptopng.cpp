@@ -26,8 +26,6 @@ int main(int argc, char * argv[]) {
 
     // Draw julia image
     JuliaPart info = {
-        width,
-        height,
         a,
         b,
         scale
