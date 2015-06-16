@@ -1,7 +1,7 @@
 default     rel
     
-section .data
 
+section .data
 
 ONED:       dd  1.0
 TWOD:       dd  2.0 
@@ -9,7 +9,6 @@ TWO:        dq  2
 
 WHITE:      dd  0x0000ff
 BLACK:      dd  0
-
 
         ;;  c = A + i*B  
 A:          dd      -0.8
@@ -35,22 +34,19 @@ scale:      resd    1
     	endstruc
 
 juliaGeneratePart: 
-            ;syspush
             push    r12
             push    rbx
             push    r13
             push    r14
             push    r15
-            ;;call    newImage
             mov     rax, rdi        ;; rax = Image
-        
+
             mov     r12, rsi        ;; r12 = out
 
             mov     rbx, rdx        ;; rbx = x1
             mov     r13, rcx        ;; r13 = y1
             mov     r14, r8         ;; r14 = x2
             mov     r15, r9         ;; r15 = y2
-
 
             mov     rdi, [rax + w]
             mov     rsi, [rax + h]
@@ -61,11 +57,6 @@ juliaGeneratePart:
             sub     r8, rcx         ;; r8 = y1 - h/2
             mov     r10, r15
             sub     r10, rcx        ;; r10 = y2 - h/2 
-
-            ;mov     rsi, [rax + w]
-            ;add     rsi, rbx
-            ;sub     rsi, r14
-            ;shl     rsi, 2  ;; rsi = shift = 4 * (w - (x2-x1))
 
             xorps  xmm8, xmm8
             movss  xmm8, [rax + a]             
@@ -78,15 +69,10 @@ juliaGeneratePart:
 
             push    rax
 
-           ; mov     rax, rdi
-           ; mul     r13
-           ; add     rax, rbx
-           ; shl     rax, 2
-           ; lea     r12, [r12 + rax]
-
             xorps  xmm14, xmm14
             movss   xmm14,  [TWOD]               ;; YMM14 = TWO
-                                    ;; R = (1 + sqrt(1 + 4*|c|))/2
+
+            ;; R = (1 + sqrt(1 + 4*|c|))/2
             movaps  xmm5, xmm8
             mulps   xmm5, xmm8
             movaps  xmm2, xmm9
@@ -110,17 +96,8 @@ juliaGeneratePart:
             cvtsi2ss    xmm6, rcx             ;; YMM6 = MAXN
 
             mov     rdx, [MAXN]
-            
-       ;     mov     r8, rsi
-       ;     shr     r8, 1
-       ;     mov     r10, r8
-       ;     neg     r8
 
 .loop_h:  
-         ;   mov     r9, rdi
-         ;   shr     r9, 1
-         ;   mov     r11, r9
-         ;   neg     r9
             mov     rcx, rdi
             shr     rcx, 1
             mov     r9, rbx
@@ -135,22 +112,22 @@ juliaGeneratePart:
             mulps   xmm1, xmm10
 
             xor     rcx, rcx
-            
+
 .loop_n:    movaps  xmm2, xmm0
             mulps   xmm2, xmm0            ;; YMM2 = a*a - b*b + A (see c++ code)
             movaps  xmm3, xmm1
             mulps   xmm3, xmm1
             subps   xmm2, xmm3          
             addps   xmm2, xmm8      
-        
+
             movaps  xmm3, xmm0
             mulps   xmm3, xmm1            ;; YMM3 = 2*a*b + B (see c++ code)
             mulps   xmm3, xmm14
             addps   xmm3, xmm9
-            
+
             movaps  xmm0, xmm2                  ;; a = YMM2
             movaps  xmm1, xmm3                  ;; b = YMM3
-             
+
             inc     rcx
 
             mulps   xmm2, xmm2          
@@ -158,14 +135,14 @@ juliaGeneratePart:
             addps   xmm2, xmm3
             sqrtps  xmm2, xmm2
             shufps  xmm2, xmm2, 0
-            comiss  xmm2, xmm5           ;; if Rn < R then +1 to N else +0 to N            
+            comiss  xmm2, xmm5           ;; if Rn < R then +1 to N else +0 to N
             jnb      .stop_n
-            cmp     rcx, rdx    
+            cmp     rcx, rdx
             jl      .loop_n
-    
+
 .stop_n     
             movaps      xmm4, xmm2
-            
+
             ;; K = (MAXN - N)/MAXN
             cvtsi2ss    xmm2, rcx
             movaps      xmm3, xmm6
@@ -174,13 +151,13 @@ juliaGeneratePart:
 
             movaps      xmm2, xmm15
             subps       xmm2, xmm3
-            
+
             ;; R = 255 * K 
             mulps       xmm3, xmm7
 
             ;; G = 255 * (1 - K)
             mulps       xmm2, xmm7
-            
+
             ;; B = 255 * ( |Z| > R? 1 : |Z|/R)
             movss       xmm11, xmm15
             comiss      xmm4, xmm5
@@ -188,8 +165,6 @@ juliaGeneratePart:
             movaps      xmm11, xmm4
             divps       xmm11, xmm5
 .gen_color  mulps       xmm11, xmm7
-
-
             cvtss2si    rcx, xmm2
             shl         rcx, 8
             cvtss2si    rax, xmm3
@@ -197,8 +172,6 @@ juliaGeneratePart:
             shl         rcx, 8
             cvtss2si    rax, xmm11
             add         rcx, rax
-
-
             
             mov     [r12], ecx                 ;; store colors to memory
             lea     r12, [r12 + 4]
@@ -209,90 +182,12 @@ juliaGeneratePart:
 
             inc     r8
             cmp     r8, r10
- ;           lea     r12, [r12 + rsi]
             jl     .loop_h
-            
+
             pop     rax
-        
             pop     r15
             pop     r14
             pop     r13
             pop     rbx
             pop     r12
-           ; syspop
-            ret
-
-%macro syspush 0
-      push  rbx
-      push  rbp
-      push  r12
-      push  r13
-      push  r14
-      push  r15
-%endmacro 
-
-%macro syspop 0
-      pop   r15
-      pop   r14
-      pop   r13
-      pop   r12
-      pop   rbp
-      pop   rbx
-%endmacro
-
-
-
-alligned_malloc:
-            test    rsp, 15
-            jz      .malloc
-            sub     rsp, 8
-            call    malloc wrt ..plt
-            add     rsp, 8
-            ret               
-.malloc     call    malloc wrt ..plt
-            ret
-
-
-alligned_free:
-            test    rsp, 15
-            jz      .free
-            sub     rsp, 8
-            call    free wrt ..plt
-            add     rsp, 8
-            ret               
-.free       call    free wrt ..plt
-            ret
-
-%macro ceil 1
-      shr %1, 3
-      shl %1, 3
-      lea %1, [%1 + 8]
-%endmacro
-
-
-
-
-
-juliaNewImage:   syspush
-            push    rdi
-            push    rsi
-            mov     rdi, Image_size
-            call    alligned_malloc
-            pop     rsi
-            pop     rdi
-            mov     [rax + w], rdi
-            mov     [rax + h], rsi
-            movd    [rax + a], xmm0
-            movd    [rax + b], xmm1
-            movd    [rax + scale], xmm2
-            push    rax
-            mov     rax, rdi
-            mul     rsi
-            mov     rdi, rax
-            shl     rdi, 2
-            call    alligned_malloc
-            pop     rdx
-     ;       mov     [rdx + pixels], rax
-            mov     rax, rdx
-            syspop
             ret
