@@ -76,24 +76,26 @@ static void generatePartAfter(uv_work_t * req, int status) {
     delete baton;
 }
 
-// generatePart(a, b, scale, x1, y1, x2, y2, callback) -> callback(filename)
+// generatePart(a, b, scale, maxn, x1, y1, x2, y2, callback) -> callback(filename)
 Handle<Value> generatePart(const Arguments & args) {
 
     // Parse args
     float a = (float) args[0]->NumberValue();
     float b = (float) args[1]->NumberValue();
     float scale = (float) args[2]->NumberValue();
-    uint32_t x1 = args[3]->Int32Value();
-    uint32_t y1 = args[4]->Int32Value();
-    uint32_t x2 = args[5]->Int32Value();
-    uint32_t y2 = args[6]->Int32Value();
-    Handle<Function> callback = Handle<Function>::Cast(args[7]);
+    uint32_t maxn = args[3]->Uint32Value();
+    int32_t x1 = args[4]->Int32Value();
+    int32_t y1 = args[5]->Int32Value();
+    int32_t x2 = args[6]->Int32Value();
+    int32_t y2 = args[7]->Int32Value();
+    Handle<Function> callback = Handle<Function>::Cast(args[8]);
 
     // Create julia part description
     JuliaPart * info = new JuliaPart;
     info->a = a;
     info->b = b;
     info->scale = scale;
+    info->maxn = maxn;
 
     // Create baton for delayed julia execution
     JuliaBaton * baton = new JuliaBaton;

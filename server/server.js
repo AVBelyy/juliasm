@@ -10,13 +10,14 @@ app.get("/julia", function(req, res) {
     var a = req.query.a;
     var b = req.query.b;
     var scale = req.query.scale;
+    var maxn = req.query.maxn;
     var x1 = req.query.x1;
     var y1 = req.query.y1;
     var x2 = req.query.x2;
     var y2 = req.query.y2;
 
     // Invoking assembly-based julia image generator
-    julia.generatePart(a, b, scale, x1, y1, x2, y2, function(path) {
+    julia.generatePart(a, b, scale, maxn, x1, y1, x2, y2, function(path) {
         fs.readFile(path, function(err, data) {
             fs.unlink(path, function() {});
             res.writeHead(200, {"Content-Type": "image/png"});

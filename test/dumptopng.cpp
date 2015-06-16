@@ -23,12 +23,14 @@ int main(int argc, char * argv[]) {
     float a = -0.8;
     float b = 0.156;
     float scale = 0.001;
+    uint32_t maxn = 500;
 
     // Draw julia image
     JuliaPart info = {
         a,
         b,
-        scale
+        scale,
+        maxn
     };
     uint32_t * pixels = new uint32_t[width * height];
 

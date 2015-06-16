@@ -5,30 +5,17 @@ section .data
 
 ONED:       dd  1.0
 TWOD:       dd  2.0 
-TWO:        dq  2
-
-WHITE:      dd  0x0000ff
-BLACK:      dd  0
-
-        ;;  c = A + i*B  
-A:          dd      -0.8
-B:          dd      0.156
-SCALE:      dd      0.004
-MAXN:       dd      500
 
 
 section    .text
 
-    extern  malloc
-    extern  free
-
     global  juliaGeneratePart
-    global  juliaNewImage
 
         struc   Image
 a:          resd    1
 b:          resd    1
 scale:      resd    1
+maxn:       resd    1
     	endstruc
 
 juliaGeneratePart: 
@@ -58,6 +45,12 @@ juliaGeneratePart:
             xorps   xmm10, xmm10
             movss   xmm10, [rax + scale]       ;;xmm10 - scale
 
+            xorps    xmm6, xmm6
+            xor      rcx, rcx
+            mov      ecx, [rax + maxn]
+            mov      rdx, rcx
+            cvtsi2ss xmm6, rcx
+
             push    rax
 
             xorps  xmm14, xmm14
@@ -77,15 +70,8 @@ juliaGeneratePart:
             addps   xmm5, xmm15
             divps   xmm5, xmm14
 
-            xor     rax, rax
-            mov     eax, [WHITE]
-            cvtsi2ss xmm7, rax              ;; xmm7 - WHITE
-            
-            xorps     xmm6, xmm6
-            mov     rcx, [MAXN]
-            cvtsi2ss    xmm6, rcx             ;; YMM6 = MAXN
-
-            mov     rdx, [MAXN]
+            mov     rax, 255
+            cvtsi2ss xmm7, rax
 
 .loop_h:
             mov     r9, rbx         ;; r9 = x1

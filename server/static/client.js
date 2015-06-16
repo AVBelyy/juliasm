@@ -1,6 +1,6 @@
 var $screen, ctx;
 var posx, posy;
-var a, b, scale = 0.005, relscale = 1;
+var a, b, n, scale = 0.005, relscale = 1;
 var wcnt = 5, hcnt = 4;
 var stepx = 20, stepy = 20;
 var loaded = {};
@@ -18,7 +18,7 @@ function loadChunk(x1, y1, x2, y2, cb) {
     if (isChunkLoaded(x1, y1)) {
         cb(x1, y1);
     } else {
-        var pieceParams = "a=" + a + "&b=" + b + "&x1=" + x1 + "&y1=" + y1 + "&x2=" + x2 + "&y2=" + y2 + "&scale=" + scale;
+        var pieceParams = "a=" + a + "&b=" + b + "&scale=" + scale + "&maxn=" + n + "&x1=" + x1 + "&y1=" + y1 + "&x2=" + x2 + "&y2=" + y2;
         var chunk = new Image();
         chunk.src = "/julia?" + pieceParams;
         chunk.onload = function() {
@@ -156,6 +156,7 @@ $(document).ready(function() {
 
     a = $("#a").val();
     b = $("#b").val();
+    n = $("#n").val();
 
     posx = Math.floor(-w / 2);
     posy = Math.floor(-h / 2);
@@ -199,6 +200,7 @@ $(document).ready(function() {
         if (e.keyCode == 13) {
             a = $("#a").val();
             b = $("#b").val();
+            n = $("#n").val();
             clearCache();
             setViewport(posx, posy);
         }
@@ -208,11 +210,19 @@ $(document).ready(function() {
         if (e.keyCode == 13) {
             a = $("#a").val();
             b = $("#b").val();
+            n = $("#n").val();
             clearCache();
             setViewport(posx, posy);
         }
     });
 
-    $("#a").addClass("prevent");
-    $("#b").addClass("prevent");
+    $("#n").keyup(function(e) {
+        if (e.keyCode == 13) {
+            a = $("#a").val();
+            b = $("#b").val();
+            n = $("#n").val();
+            clearCache();
+            setViewport(posx, posy);
+        }
+    });
 });

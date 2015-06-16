@@ -6,6 +6,7 @@ struct JuliaPart {
     float a;
     float b;
     float scale;
+    uint32_t maxn;
 };
 
 #ifdef __cplusplus
