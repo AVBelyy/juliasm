@@ -15,7 +15,7 @@ function isChunkLoaded(x, y) {
 
 function loadChunk(x1, y1, x2, y2, cb) {
     if (isChunkLoaded(x1, y1)) {
-        cb();
+        cb(x1, y1);
     } else {
         var pieceParams = "a=" + a + "&b=" + b + "&x1=" + x1 + "&y1=" + y1 + "&x2=" + x2 + "&y2=" + y2 + "&scale=" + scale;
         var chunk = new Image();
@@ -25,7 +25,7 @@ function loadChunk(x1, y1, x2, y2, cb) {
                 loaded[x1] = {};
             }
             loaded[x1][y1] = chunk;
-            cb();
+            cb(x1, y1);
         }
     }
 }
@@ -51,18 +51,11 @@ function setViewport(sx, sy) {
 
         var chunk_loaded = 0;
         // load all needed chunks
+        ctx.fillRect(0, 0, w, h);
         for (var y = ssy - dh; y < h + ssy + dh; y += dh) {
             for (var x = ssx - dw; x < w + ssx + dw; x += dw) {
-                loadChunk(x, y, x + dw, y + dh, function() {
-                    // display visible chunks 
-                    ctx.fillRect(0, 0, w, h);
-                    for (var yy = ssy - dh; yy < h + ssy + dh; yy += dh) {
-                        for (var xx = ssx - dw; xx < w + ssx + dw; xx += dw) {
-                            if (isChunkLoaded(xx, yy)) {
-                                ctx.drawImage(loaded[xx][yy], xx - sx, yy - sy);
-                            }
-                        }
-                    }
+                loadChunk(x, y, x + dw, y + dh, function(x, y) {
+                    ctx.drawImage(loaded[x][y], x - sx, y - sy);
                     // release lock
                     if (++chunk_loaded == chunk_cnt) {
                         entered = false;
