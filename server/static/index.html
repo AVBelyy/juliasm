@@ -3,12 +3,36 @@
 <head>
 <meta charset="utf-8">
 <script type="text/javascript" src="/jquery.min.js"></script>
+<script type="text/javascript" src="/fpsmeter.min.js"></script>
 <script type="text/javascript" src="/client.js"></script>
+<style>
+.param {
+    position: absolute;
+    top: 5px;
+    width: 100px;
+    background: none;
+    border: none;
+    color: white;
+    z-index: 10;
+    font-family: "Courier";
+    font-size: 16px;
+}
+
+.input {
+    width: 50px;
+    background: none;
+    border: none;
+    color: white;
+    font-family: "Courier";
+    font-size: 16px;
+}
+</style>
 <title>JuliAsm Web example</title>
 </head>
 <body>
-<input id="a" style="position: absolute; left:  5px; top: 5px; width: 50px; z-index: 10; font-family: 'Courier'; font-size: 12px" type="text" value="-0.8">
-<input id="b" style="position: absolute; left: 65px; top: 5px; width: 50px; z-index: 10; font-family: 'Courier'; font-size: 12px" type="text" value="0.136">
-<div style="position: absolute; right: 0; bottom: 0; z-index: 10; font-family: 'Courier'; color: white">juliasm lib by ak.sholokhov<br>web-client by tohnann, 2015</div>
+<div class="param" style="left:   5px">A = <input id="a" class="input" type="text" value="-0.8"></div>
+<div class="param" style="left: 100px">B = <input id="b" class="input" type="text" value="0.136"></div>
+<div style="position: absolute; left: 5px; bottom: 5px; z-index: 10; font-family: 'Courier'; color: white">scale <span id="scale">1</span>x</div>
+<div style="position: absolute; right: 5px; bottom: 5px; z-index: 10; font-family: 'Courier'; color: white">juliasm lib by ak.sholokhov<br>web-client by tohnann, 2015</div>
 </body>
 </html>

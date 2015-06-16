@@ -1,9 +1,10 @@
 var $screen, ctx;
 var posx, posy;
-var a, b, scale = 0.005;
+var a, b, scale = 0.005, relscale = 1;
 var wcnt = 5, hcnt = 4;
 var stepx = 20, stepy = 20;
 var loaded = {};
+var meter;
 
 function clearCache() {
     loaded = {};
@@ -63,6 +64,8 @@ function setViewport(sx, sy) {
                 });
             }
         }
+
+        meter.tick();
     }
 }
 
@@ -100,16 +103,24 @@ $(document).keydown(function(e) {
             break;
 
         case 187: // +-ish
-            scale /= 2;
-            clearCache();
-            setViewport(posx, posy);
+            if (!entered) {
+                scale /= 2;
+                relscale *= 2;
+                $("#scale").html(relscale);
+                clearCache();
+                setViewport(posx, posy);
+            }
             e.preventDefault();
             break;
 
         case 189: // -
-            scale *= 2;
-            clearCache();
-            setViewport(posx, posy);
+            if (!entered) {
+                scale *= 2;
+                relscale /= 2;
+                $("#scale").html(relscale);
+                clearCache();
+                setViewport(posx, posy);
+            }
             e.preventDefault();
             break;
     }
@@ -131,6 +142,13 @@ $(document).ready(function() {
     });
     $screen.appendTo("body");
     ctx = $screen[0].getContext("2d");
+
+    meter = new FPSMeter(document.body, {
+        "left": "auto",
+        "top": "5px",
+        "right": "5px",
+        "theme": "transparent"
+    });
 
     a = $("#a").val();
     b = $("#b").val();
