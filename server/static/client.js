@@ -4,7 +4,6 @@ var a, b, scale = 0.005;
 var wcnt = 8, hcnt = 6;
 var stepx = 20, stepy = 20;
 var loaded = {};
-var juliaParams = "w=0&h=0";
 
 function clearCache() {
     loaded = {};
@@ -20,7 +19,7 @@ function loadChunk(x1, y1, x2, y2, cb) {
     } else {
         var pieceParams = "a=" + a + "&b=" + b + "&x1=" + x1 + "&y1=" + y1 + "&x2=" + x2 + "&y2=" + y2 + "&scale=" + scale;
         var chunk = new Image();
-        chunk.src = "/julia?" + juliaParams + "&" + pieceParams;
+        chunk.src = "/julia?" + pieceParams;
         chunk.onload = function() {
             if (!loaded[x1]) {
                 loaded[x1] = {};

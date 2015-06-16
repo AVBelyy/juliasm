@@ -3,8 +3,6 @@
 #include <stdint.h>
 
 struct JuliaPart {
-    uint64_t w;
-    uint64_t h;
     float a;
     float b;
     float scale;

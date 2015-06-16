@@ -26,8 +26,6 @@ section    .text
     global  juliaNewImage
 
         struc   Image
-w:          resq    1
-h:          resq    1
 a:          resd    1
 b:          resd    1
 scale:      resd    1
@@ -48,15 +46,8 @@ juliaGeneratePart:
             mov     r14, r8         ;; r14 = x2
             mov     r15, r9         ;; r15 = y2
 
-            mov     rdi, [rax + w]
-            mov     rsi, [rax + h]
-
-            mov     rcx, rsi
-            shr     rcx, 1
-            mov     r8, r13
-            sub     r8, rcx         ;; r8 = y1 - h/2
-            mov     r10, r15
-            sub     r10, rcx        ;; r10 = y2 - h/2 
+            mov     r8, r13         ;; r8 = y1
+            mov     r10, r15        ;; r10 = y2
 
             xorps  xmm8, xmm8
             movss  xmm8, [rax + a]             
@@ -84,8 +75,7 @@ juliaGeneratePart:
             addps   xmm5, xmm15
             sqrtps  xmm5, xmm5
             addps   xmm5, xmm15
-            divps   xmm5, xmm14          ;; YMM5 = R
-            shufps  xmm5, xmm5, 0
+            divps   xmm5, xmm14
 
             xor     rax, rax
             mov     eax, [WHITE]
@@ -97,13 +87,9 @@ juliaGeneratePart:
 
             mov     rdx, [MAXN]
 
-.loop_h:  
-            mov     rcx, rdi
-            shr     rcx, 1
-            mov     r9, rbx
-            sub     r9, rcx         ;; r9 = x1 - w/2
-            mov     r11, r14    
-            sub     r11, rcx        ;; r11 = x2 - w/2
+.loop_h:
+            mov     r9, rbx         ;; r9 = x1
+            mov     r11, r14        ;; r11 = x2
 
 .loop_w:    cvtsi2ss    xmm0, r8
             mulps       xmm0, xmm10
@@ -134,7 +120,6 @@ juliaGeneratePart:
             mulps   xmm3, xmm3
             addps   xmm2, xmm3
             sqrtps  xmm2, xmm2
-            shufps  xmm2, xmm2, 0
             comiss  xmm2, xmm5           ;; if Rn < R then +1 to N else +0 to N
             jnb      .stop_n
             cmp     rcx, rdx
@@ -158,7 +143,7 @@ juliaGeneratePart:
             ;; G = 255 * (1 - K)
             mulps       xmm2, xmm7
 
-            ;; B = 255 * ( |Z| > R? 1 : |Z|/R)
+            ;; B = 255 * (|Z| > R? 1 : |Z|/R)
             movss       xmm11, xmm15
             comiss      xmm4, xmm5
             jb          .gen_color

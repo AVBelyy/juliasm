@@ -76,25 +76,21 @@ static void generatePartAfter(uv_work_t * req, int status) {
     delete baton;
 }
 
-// generatePart(w, h, a, b, scale, x1, y1, x2, y2, callback) -> callback(filename)
+// generatePart(a, b, scale, x1, y1, x2, y2, callback) -> callback(filename)
 Handle<Value> generatePart(const Arguments & args) {
 
     // Parse args
-    uint32_t w = args[0]->Uint32Value();
-    uint32_t h = args[1]->Uint32Value();
-    float a = (float) args[2]->NumberValue();
-    float b = (float) args[3]->NumberValue();
-    float scale = (float) args[4]->NumberValue();
-    uint32_t x1 = args[5]->Int32Value();
-    uint32_t y1 = args[6]->Int32Value();
-    uint32_t x2 = args[7]->Int32Value();
-    uint32_t y2 = args[8]->Int32Value();
-    Handle<Function> callback = Handle<Function>::Cast(args[9]);
+    float a = (float) args[0]->NumberValue();
+    float b = (float) args[1]->NumberValue();
+    float scale = (float) args[2]->NumberValue();
+    uint32_t x1 = args[3]->Int32Value();
+    uint32_t y1 = args[4]->Int32Value();
+    uint32_t x2 = args[5]->Int32Value();
+    uint32_t y2 = args[6]->Int32Value();
+    Handle<Function> callback = Handle<Function>::Cast(args[7]);
 
     // Create julia part description
     JuliaPart * info = new JuliaPart;
-    info->w = w;
-    info->h = h;
     info->a = a;
     info->b = b;
     info->scale = scale;
