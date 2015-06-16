@@ -1,7 +1,7 @@
-var screen, ctx;
+var $screen, ctx;
 var posx, posy;
 var a, b, scale = 0.005;
-var wcnt = 8, hcnt = 6;
+var wcnt = 5, hcnt = 4;
 var stepx = 20, stepy = 20;
 var loaded = {};
 
@@ -35,7 +35,7 @@ function setViewport(sx, sy) {
     if (!entered) {
         entered = true;
  
-        var w = screen.width(), h = screen.height();
+        var w = $screen.width(), h = $screen.height();
         var dw = Math.ceil(w / wcnt);
         var dh = Math.ceil(h / hcnt);
         var ssx = Math.ceil(sx / dw) * dw;
@@ -75,7 +75,7 @@ function setViewport(sx, sy) {
 
 // one way of treading Julia set is by keyboard
 $(document).keydown(function(e) {
-    var w = screen.width(), h = screen.height();
+    var w = $screen.width(), h = $screen.height();
 
     if (e.target != document.body) {
         return;
@@ -126,18 +126,18 @@ $(document).ready(function() {
     var w = $(document).width();
     var h = $(document).height();
 
-    screen = $("<canvas/>");
-    screen.css({
+    $screen = $("<canvas/>");
+    $screen.css({
         position: "absolute",
         left: "0",
         top: "0"
     });
-    screen.attr({
+    $screen.attr({
         width: $(document).width(),
         height: $(document).height()
     });
-    screen.appendTo("body");
-    ctx = screen[0].getContext("2d");
+    $screen.appendTo("body");
+    ctx = $screen[0].getContext("2d");
 
     a = $("#a").val();
     b = $("#b").val();
@@ -150,21 +150,21 @@ $(document).ready(function() {
     var dragging = false;
     var prevx = -1, prevy;
 
-    $(screen).mousedown(function() {
+    $($screen).mousedown(function() {
         dragging = true;
     });
 
-    $(screen).mouseup(function() {
+    $($screen).mouseup(function() {
         dragging = false;
         prevx = -1;
     });
 
-    $(screen).mouseout(function() {
+    $($screen).mouseout(function() {
         dragging = false;
         prevx = -1;
     });
 
-    $(screen).mousemove(function(e) {
+    $($screen).mousemove(function(e) {
         if (dragging) {
             var curx = e.clientX;
             var cury = e.clientY;
