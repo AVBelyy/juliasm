@@ -4,6 +4,8 @@ var express = require("express");
 
 var app = express();
 
+app.use("/", express.static("static"));
+
 app.get("/julia", function(req, res) {
     var w = req.query.w;
     var h = req.query.h;
@@ -18,6 +20,7 @@ app.get("/julia", function(req, res) {
     // Invoking assembly-based julia image generator
     julia.generatePart(w, h, a, b, scale, x1, y1, x2, y2, function(path) {
         fs.readFile(path, function(err, data) {
+            fs.unlink(path, function() {});
             res.writeHead(200, {"Content-Type": "image/png"});
             res.end(data, "binary");
         });
